@@ -1,0 +1,36 @@
+html {
+  background: #faf9f5;
+  color: #23332d;
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+body {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: clamp(1rem, 5vw, 3rem);
+}
+
+h1, h2 {
+  line-height: 1.25;
+}
+
+a {
+  color: #15583e;
+  text-underline-offset: 0.15em;
+}
+
+:focus-visible {
+  outline: 0.18rem solid #903b14;
+  outline-offset: 0.2rem;
+}
+
+details {
+  border-top: 1px solid #aab7ad;
+  padding: 0.7em 0;
+}
+
+summary {
+  cursor: pointer;
+  font-weight: 600;
+}
