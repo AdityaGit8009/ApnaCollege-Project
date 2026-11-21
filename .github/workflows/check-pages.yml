@@ -1,0 +1,17 @@
+name: Check HTML practice pages
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  check-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test the pages and their links
+        run: python3 -m unittest discover -s tests -v

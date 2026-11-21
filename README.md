@@ -27,3 +27,5 @@ From the repository root, run the checks with Python 3. They verify the greeting
 ```sh
 python -m unittest discover -s tests -v
 ```
+
+GitHub runs the same checks on pushes and pull requests. Open **Actions** and select **Check HTML practice pages** to see the results.
