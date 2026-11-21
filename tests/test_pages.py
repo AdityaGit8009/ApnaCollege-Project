@@ -2,6 +2,7 @@ from collections import defaultdict
 from html.parser import HTMLParser
 from pathlib import Path
 import unittest
+from urllib.parse import unquote, urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,6 +12,7 @@ HOME = ROOT / "index.html"
 class Page(HTMLParser):
     def __init__(self, path):
         super().__init__()
+        self.path = path
         self.elements = defaultdict(list)
         self.declarations = []
         self.text = defaultdict(list)
@@ -37,11 +39,27 @@ class Page(HTMLParser):
     def text_of(self, tag):
         return "".join(self.text[tag]).strip()
 
+    def local_links(self, *tags):
+        for tag in tags:
+            for attrs in self.elements[tag]:
+                if "href" not in attrs:
+                    continue
+                href = attrs["href"] or ""
+                url = urlsplit(href)
+                if url.scheme or url.netloc:
+                    continue
+                target = self.path
+                if url.path:
+                    target = (self.path.parent / unquote(url.path)).resolve()
+                    if target.is_dir():
+                        target = target / "index.html"
+                yield href, target, unquote(url.fragment)
+
 
 class PageTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        paths = [HOME, *sorted((ROOT / "examples").glob("*.html"))]
+        paths = [HOME, *sorted((ROOT / "examples").rglob("*.html"))]
         cls.pages = {path: Page(path) for path in paths}
 
     def test_pages_have_a_language_title_heading_and_landmark(self):
@@ -60,3 +78,21 @@ class PageTests(unittest.TestCase):
 
     def test_home_keeps_the_original_greeting(self):
         self.assertEqual(self.pages[HOME].text_of("h1"), "Hello World")
+
+    def test_local_links_stylesheets_and_fragments_exist(self):
+        for path, page in self.pages.items():
+            for href, target, fragment in page.local_links("a", "link"):
+                with self.subTest(page=path.relative_to(ROOT), href=href):
+                    self.assertIn(ROOT, target.parents)
+                    self.assertTrue(target.is_file(), f"Missing file for {href}")
+                    if fragment and target.suffix.lower() == ".html":
+                        target_page = self.pages.get(target) or Page(target)
+                        ids = [attrs.get("id") for tags in target_page.elements.values()
+                               for attrs in tags]
+                        self.assertEqual(ids.count(fragment), 1, f"Unresolved or duplicate #{fragment}")
+
+    def test_home_links_to_every_example(self):
+        linked = {target for _, target, _ in self.pages[HOME].local_links("a")}
+        for path in self.pages.keys() - {HOME}:
+            with self.subTest(page=path.relative_to(ROOT)):
+                self.assertIn(path, linked)

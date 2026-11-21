@@ -22,7 +22,7 @@ Open [the local preview](http://127.0.0.1:8000/). Keep the terminal open as you 
 
 ## Check your edits
 
-From the repository root, run the checks with Python 3. They read the HTML files directly and verify the greeting, page titles, language, headings and main landmarks.
+From the repository root, run the checks with Python 3. They verify the greeting, page titles, language, headings and main landmarks. They also follow local links to catch missing examples, stylesheets and section IDs.
 
 ```sh
 python -m unittest discover -s tests -v
