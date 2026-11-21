@@ -1,0 +1,26 @@
+@page {
+  margin: 1.5cm;
+}
+
+html {
+  background: white;
+  color: black;
+  font-family: Georgia, serif;
+}
+
+body {
+  max-width: none;
+  padding: 0;
+}
+
+nav {
+  display: none;
+}
+
+h2 {
+  break-after: avoid;
+}
+
+li {
+  break-inside: avoid;
+}
